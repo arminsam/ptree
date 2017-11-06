@@ -10,7 +10,7 @@ php:
 
 before_script:
 - "composer require codeclimate/php-test-reporter --dev"
-- "composer update --prefer-lowest"
+- "composer update"
 
 script:
 - "phpunit --testsuite=unit --coverage-text --coverage-clover build/logs/clover.xml"
