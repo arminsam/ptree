@@ -10,10 +10,10 @@ php:
 
 before_script:
 - "composer require codeclimate/php-test-reporter --dev"
-- "composer install"
+- "composer update --prefer-lowest"
 
 script:
-- "phpunit --testsuite=unit --coverage-text --coverage-clover build/logs/test_coverage/clover/clover.xml --coverage-html build/logs/test_coverage/html"
+- "phpunit --testsuite=unit --coverage-text --coverage-clover build/logs/clover.xml"
 
 after_script:
 - CODECLIMATE_REPO_TOKEN="7a698d0bfe94a14e1eb628bc2ebbc6d94a54349194c6a3a6393f88b0a2dec86e" vendor/bin/test-reporter --stdout > codeclimate.json
