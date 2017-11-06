@@ -1,10 +1,9 @@
 <?php
 
-use PHPUnit\Framework\TestCase;
 use PTree\Node;
 use PTree\Tree;
 
-class TreeTest extends TestCase
+class TreeTest extends PHPUnit_Framework_TestCase
 {
     public function testGetRoot()
     {
