@@ -1,8 +1,9 @@
 <?php
 
+use PHPUnit\Framework\TestCase;
 use PTree\Node;
 
-class NodeTest extends PHPUnit_Framework_TestCase
+class NodeTest extends TestCase
 {
     public function testGetId()
     {
