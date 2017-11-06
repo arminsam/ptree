@@ -1,8 +1,8 @@
 {
 	"name": "arminsam/ptree",
 	"type": "library",
-	"description": "Simple Tree structure with recursive iterator",
-	"keywords": ["php", "tree"],
+	"description": "A simple Tree data structure implemented in php",
+	"keywords": ["php", "tree", "data structure"],
 	"license": "MIT",
 	"authors": [
 		{
