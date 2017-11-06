@@ -1,0 +1,5 @@
+vendor/
+tests/coverage
+.idea/
+.DS_Store
+phpunit.xml

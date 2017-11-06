@@ -1,0 +1,24 @@
+{
+	"name": "arminsam/ptree",
+	"type": "library",
+	"description": "Simple Tree structure with recursive iterator",
+	"keywords": ["php", "tree"],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "Armin Sam",
+			"email": "armin.sm64@gmail.com"
+		}
+	],
+	"require": {
+		"php": ">=5.4"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "~5.7"
+	},
+	"autoload": {
+		"psr-4": {
+			"PTree\\": "src/PTree"
+		}
+	}
+}
