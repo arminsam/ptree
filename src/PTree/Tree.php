@@ -35,7 +35,7 @@ class Tree
     public function setRoot(Node $root)
     {
         if (isset($this->root)) {
-            throw new Exception('The root node is already set.');
+            throw new Exception('The root node is already set.', 1);
         }
 
         $this->nodes[$root->getId()] = $root;
@@ -61,11 +61,11 @@ class Tree
     public function addNode(Node $parent, Node $node)
     {
         if (! array_key_exists($parent->getId(), $this->nodes)) {
-            throw new Exception('The given parent node does not exist in the tree.');
+            throw new Exception('The given parent node does not exist in the tree.', 1);
         }
 
         if (array_key_exists($node->getId(), $this->nodes)) {
-            throw new Exception('The given node already exists in the tree.');
+            throw new Exception('The given node already exists in the tree.', 2);
         }
 
         $parent->addChild($node);
@@ -82,11 +82,11 @@ class Tree
     public function removeNode(Node $node)
     {
         if (! array_key_exists($node->getId(), $this->nodes)) {
-            throw new Exception('The given node does not exist in the tree.');
+            throw new Exception('The given node does not exist in the tree.', 1);
         }
 
         if ($this->isRoot($node)) {
-            throw new Exception('The root node cannot be removed.');
+            throw new Exception('The root node cannot be removed.', 2);
         }
 
         if ($node->hasChildren()) {

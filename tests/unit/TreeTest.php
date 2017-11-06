@@ -23,8 +23,14 @@ class TreeTest extends TestCase
         $tree->setRoot($root);
         $this->assertTrue($tree->isRoot($root));
 
-        $this->expectException('Exception');
-        $tree->setRoot($root);
+        try {
+            $tree->setRoot($root);
+        } catch (Exception $e) {
+            $this->assertEquals(1, $e->getCode());
+            return;
+        }
+
+        $this->fail('Did not received expected exception');
     }
 
     public function testAddNode()
@@ -41,14 +47,20 @@ class TreeTest extends TestCase
 
     }
 
-    public function testAddNodeWithoutSettingRoot()
+    public function testAddNodeToNonExistingParent()
     {
         $tree = new Tree();
         $parent = new Node('parent');
         $child = new Node('child');
 
-        $this->expectException('Exception');
-        $tree->addNode($parent, $child);
+        try {
+            $tree->addNode($parent, $child);
+        } catch (Exception $e) {
+            $this->assertEquals(1, $e->getCode());
+            return;
+        }
+
+        $this->fail('Did not received expected exception');
     }
 
     public function testAddNodeForExistingNode()
@@ -59,8 +71,14 @@ class TreeTest extends TestCase
 
         $tree->addNode($parent, $child);
 
-        $this->expectException('Exception');
-        $tree->addNode($parent, $child);
+        try {
+            $tree->addNode($parent, $child);
+        } catch (Exception $e) {
+            $this->assertEquals(2, $e->getCode());
+            return;
+        }
+
+        $this->fail('Did not received expected exception');
     }
 
     public function testRemoveNode()
@@ -92,8 +110,14 @@ class TreeTest extends TestCase
 
         $tree->addNode($root, $node1);
 
-        $this->expectException('Exception');
-        $tree->removeNode($node2);
+        try {
+            $tree->removeNode($node2);
+        } catch (Exception $e) {
+            $this->assertEquals(1, $e->getCode());
+            return;
+        }
+
+        $this->fail('Did not received expected exception');
     }
 
     public function testRemoveNodeForRootNode()
@@ -101,7 +125,13 @@ class TreeTest extends TestCase
         $root = new Node('root');
         $tree = new Tree($root);
 
-        $this->expectException('Exception');
-        $tree->removeNode($root);
+        try {
+            $tree->removeNode($root);
+        } catch (Exception $e) {
+            $this->assertEquals(2, $e->getCode());
+            return;
+        }
+
+        $this->fail('Did not received expected exception');
     }
 }
