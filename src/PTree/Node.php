@@ -7,22 +7,22 @@ class Node
     /**
      * @var
      */
-    private $id;
+    protected $id;
 
     /**
      * @var
      */
-    private $value;
+    protected $value;
 
     /**
      * @var Node|null
      */
-    private $parent = null;
+    protected $parent = null;
 
     /**
      * @var Node[]
      */
-    private $children = [];
+    protected $children = [];
 
     /**
      * Node constructor.
@@ -127,7 +127,7 @@ class Node
      * @param $value
      * @param $id
      */
-    private function setId($value, $id)
+    protected function setId($value, $id)
     {
         if (! empty($id)) {
             $this->id = $id;

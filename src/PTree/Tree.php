@@ -9,12 +9,12 @@ class Tree
     /**
      * @var Node[]
      */
-    private $nodes = [];
+    protected $nodes = [];
 
     /**
      * @var Node|null
      */
-    private $root = null;
+    protected $root = null;
 
     /**
      * Tree constructor.
@@ -105,6 +105,28 @@ class Tree
     public function getSize()
     {
         return count($this->nodes);
+    }
+
+    /**
+     * @param $id
+     * @return null|Node
+     */
+    public function getNode($id)
+    {
+        if ($this->hasNode($id)) {
+            return $this->nodes[$id]
+        }
+
+        return null;
+    }
+
+    /**
+     * @param $id
+     * @return bool
+     */
+    public function hasNode($id)
+    {
+        return isset($this->nodes[$id]);
     }
 
     /**
