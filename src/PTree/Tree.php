@@ -114,7 +114,7 @@ class Tree
     public function getNode($id)
     {
         if ($this->hasNode($id)) {
-            return $this->nodes[$id]
+            return $this->nodes[$id];
         }
 
         return null;
