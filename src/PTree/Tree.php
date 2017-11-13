@@ -3,22 +3,36 @@
 namespace PTree;
 
 use Exception;
+use ReflectionClass;
+use ReflectionMethod;
 
 class Tree
 {
     /**
+     * List of all nodes in the tree
+     *
      * @var Node[]
      */
-    protected $nodes = [];
+    protected $nodes;
 
     /**
-     * @var Node|null
+     * List of all leaf nodes
+     *
+     * @var Node[]
      */
-    protected $root = null;
+    protected $leaves;
 
     /**
-     * Tree constructor.
-     * @param Node $root
+     * The root node of the tree
+     *
+     * @var Node
+     */
+    protected $root;
+
+    /**
+     * Create a new tree.
+     *
+     * @param Node|null $root
      */
     public function __construct(Node $root = null)
     {
@@ -28,100 +42,134 @@ class Tree
     }
 
     /**
-     * @param Node $root
-     * @return $this
+     * Add a child node to the given parent in the tree.
+     *
+     * @param Node $node
+     * @param Node|null $parent
      * @throws Exception
      */
-    public function setRoot(Node $root)
+    public function addNode(Node $node, Node $parent = null)
     {
-        if (isset($this->root)) {
-            throw new Exception('The root node is already set.', 1);
+        if (is_null($parent)) {
+            $this->setRoot($node);
+            return;
         }
 
-        $this->nodes[$root->getId()] = $root;
-        $this->root = $root;
+        if (! isset($this->nodes[$parent->getId()])) {
+            throw new Exception("The given parent node {$parent->getId()} does not exist in the tree.", 1003);
+        }
 
-        return $this;
+        if (isset($this->nodes[$node->getId()])) {
+            throw new Exception("The given node {$node->getId()} already exists in the tree.", 1004);
+        }
+
+        self::getMethod('addChild')->invokeArgs($parent, [$node]);
+        $this->nodes[$node->getId()] = $node;
     }
 
     /**
+     * Remove a node and all its children from the tree.
+     *
+     * @param Node $node
+     * @throws Exception
+     */
+    public function removeNode(Node $node)
+    {
+        if (! isset($this->nodes[$node->getId()])) {
+            throw new Exception("The given node {$node->getId()} does not exist in the tree.", 1005);
+        }
+
+        if ($this->isRoot($node)) {
+            throw new Exception("The root node cannot be removed.", 1006);
+        }
+
+        $this->removeChildrenNodes($node);
+
+        self::getMethod('remove')->invokeArgs($node, []);
+        unset($this->nodes[$node->getId()]);
+    }
+
+    /**
+     * Remove all children of the given parent node in the tree.
+     *
+     * @param Node $parent
+     */
+    public function removeChildrenNodes(Node $parent)
+    {
+        array_map([$this, 'removeNode'], $parent->getChildren());
+    }
+
+    /**
+     * Get the root node of the tree.
+     *
      * @return Node
      */
-    public function getRoot()
+    public function getRootNode()
     {
         return $this->root;
     }
 
     /**
-     * @param Node $parent
-     * @param Node $node
-     * @return $this
+     * Get a list of all leaf nodes of the tree.
+     *
+     * @return Node[]
+     */
+    public function getLeafNodes()
+    {
+        return array_filter($this->nodes, function(Node $node) {
+            return ! $node->hasChildren() && ! $node->equals($this->getRootNode());
+        });
+    }
+
+    /**
+     * Get a list of all non-leaf nodes of the tree.
+     *
+     * @return Node[]
+     */
+    public function getNonLeafNodes()
+    {
+        return array_filter($this->nodes, function(Node $node) {
+            return $node->hasChildren();
+        });
+    }
+
+    /**
+     * Get all nodes of the tree on the given depth level (if null, returns all).
+     *
+     * @param int $depth
+     * @return Node[]
+     */
+    public function getAllNodes($depth = null)
+    {
+        if (is_null($depth)) {
+            return $this->nodes;
+        }
+
+        return array_filter($this->nodes, function($node) use ($depth) {
+            return $this->getDepth($node) === $depth;
+        });
+    }
+
+    /**
+     * Get a node from the tree based on the given id.
+     *
+     * @param string $id
+     * @return Node|null
      * @throws Exception
-     */
-    public function addNode(Node $parent, Node $node)
-    {
-        if (! array_key_exists($parent->getId(), $this->nodes)) {
-            throw new Exception('The given parent node does not exist in the tree.', 1);
-        }
-
-        if (array_key_exists($node->getId(), $this->nodes)) {
-            throw new Exception('The given node already exists in the tree.', 2);
-        }
-
-        $parent->addChild($node);
-        $this->nodes[$node->getId()] = $node;
-
-        return $this;
-    }
-
-    /**
-     * @param Node $node
-     * @return $this
-     * @throws Exception
-     */
-    public function removeNode(Node $node)
-    {
-        if (! array_key_exists($node->getId(), $this->nodes)) {
-            throw new Exception('The given node does not exist in the tree.', 1);
-        }
-
-        if ($this->isRoot($node)) {
-            throw new Exception('The root node cannot be removed.', 2);
-        }
-
-        if ($node->hasChildren()) {
-            array_map([$this, 'removeNode'], $node->getChildren());
-        }
-
-        $node->unlink();
-        unset($this->nodes[$node->getId()]);
-
-        return $this;
-    }
-
-    /**
-     * @return int
-     */
-    public function getSize()
-    {
-        return count($this->nodes);
-    }
-
-    /**
-     * @param $id
-     * @return null|Node
      */
     public function getNode($id)
     {
-        if ($this->hasNode($id)) {
-            return $this->nodes[$id];
+        if (! $this->hasNode($id)) {
+            return null;
         }
 
-        return null;
+        return $this->nodes[$id];
     }
 
     /**
-     * @param $id
+     * Determine if the tree has a node with the given id.
+     *
+     * @param string $id
      * @return bool
      */
     public function hasNode($id)
@@ -130,19 +178,78 @@ class Tree
     }
 
     /**
-     * @return array
+     * Get the total number of nodes in the tree.
+     *
+     * @return int
      */
-    public function getNodeList()
+    public function getSize()
     {
-        return $this->nodes;
+        return count($this->nodes);
     }
 
     /**
+     * Get the length of the path from the given node to the root.
+     *
      * @param Node $node
-     * @return mixed
+     * @return int
+     */
+    public function getDepth(Node $node)
+    {
+        return self::getMethod('getDepth')->invokeArgs($node, []);
+    }
+
+    /**
+     * Get the length of the longest path from the given node to a leaf.
+     *
+     * @param Node $node
+     * @return int
+     */
+    public function getHeight(Node $node)
+    {
+        return self::getMethod('getHeight')->invokeArgs($node, []);
+    }
+
+    /**
+     * Determine if the given node is the root of the tree.
+     *
+     * @param Node $node
+     * @return bool
      */
     public function isRoot(Node $node)
     {
-        return $this->root->equals($node);
+        if (is_null($this->root) || $this->root->getId() !== $node->getId()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Set the root node of the tree.
+     *
+     * @param Node $root
+     * @throws Exception
+     */
+    protected function setRoot(Node $root)
+    {
+        if (! is_null($this->root)) {
+            throw new Exception("The root node has already been set.", 1002);
+        }
+
+        $this->root = $root;
+        $this->nodes[$root->getId()] = $root;
+    }
+
+    /**
+     * This method is used to call protected methods of Node class, like addChild() or remove().
+     *
+     * @param string $name
+     * @return ReflectionMethod
+     */
+    protected static function getMethod($name) {
+        $class = new ReflectionClass(Node::class);
+        $method = $class->getMethod($name);
+        $method->setAccessible(true);
+        return $method;
     }
 }
